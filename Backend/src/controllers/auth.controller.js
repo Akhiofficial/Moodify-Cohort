@@ -3,8 +3,6 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const redis = require("../config/cache")
 
-const blacklistModel = require("../models/blacklist.model")
-
 
 async function registerUser(req, res) {
 

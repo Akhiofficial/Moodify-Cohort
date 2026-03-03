@@ -1,0 +1,10 @@
+4 level react architecture
+
+1. UI => handles UI and Navigation part    handle {pages and components}
+
+2. hooks => States API management [hooks => useAuth, useCart, useProduct]
+
+3. State layer => data store (auth.context, )
+
+4. API layer => communication between backend [services/auth.api.js, services/cart.api.js, services/product.api.js]
+
