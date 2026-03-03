@@ -1,6 +1,9 @@
 const userModel = require("../models/users.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const redis = require("../config/cache")
+
+const blacklistModel = require("../models/blacklist.model")
 
 
 async function registerUser(req, res) {
@@ -60,12 +63,14 @@ async function registerUser(req, res) {
 async function loginUser(req, res) {
     const { username, email, password } = req.body
 
+    // finding user by username or email
     const user = await userModel.findOne({
         $or: [
             { username },
             { email }
         ]
-    })
+    }).select("+password")
+
 
     if (!user) {
         return res.status(400).json({
@@ -73,6 +78,7 @@ async function loginUser(req, res) {
         })
     }
 
+    // comparing password
     const isPasswordValid = await bcrypt.compare(password, user.password)
 
     if (!isPasswordValid) {
@@ -81,11 +87,13 @@ async function loginUser(req, res) {
         })
     }
 
+    // token generation from jwt
     const token = jwt.sign({
         id: user._id,
         username: user.username
     }, process.env.JWT_SECRET, { expiresIn: "1d" })
 
+    // storing token in cookie
     res.cookie("token", token)
 
     res.status(200).json({
@@ -98,8 +106,41 @@ async function loginUser(req, res) {
     })
 }
 
+async function getMe(req, res) {
+    const user = await userModel.findById(req.user.id)
+
+    res.status(200).json({
+        message: "User fetched successfully",
+        user
+    })
+}
+
+
+async function logoutUser(req, res) {
+    const token = req.cookies.token
+
+    if (!token) {
+        return res.status(400).json({
+            message: "Invalid Token"
+        })
+    }
+
+    res.clearCookie("token")
+
+    // save token into redis 
+    // EX is for expire time in seconds 60 * 60 * 12 = 12 hours
+    await redis.set(token, Date.now().toString(), "EX", 60 * 60 * 12)
+
+    res.status(200).json({
+        message: "logout successfully"
+    })
+}
+
+
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    getMe,
+    logoutUser
 }
