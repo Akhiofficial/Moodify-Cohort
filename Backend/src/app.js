@@ -21,11 +21,11 @@ app.use("/api/auth", authRoutes)
 app.use("/api/songs", songRoutes)
 
 // Serve static files from the built React frontend
-const frontendPath = path.join(__dirname, "../../public");
+const frontendPath = path.join(__dirname, "../public");
 app.use(express.static(frontendPath));
 
 // Catch-all: send back index.html for any non-API route (client-side routing)
-app.get("/*splat", (req, res) => {
+app.get("/*", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
 });
 
