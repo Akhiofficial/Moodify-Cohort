@@ -1,0 +1,381 @@
+/* =========================================================
+   Player – Glassmorphism Design
+   Embedded card – lives inside the Home page layout
+   ========================================================= */
+
+/* ---------- glass card ------------------------------------ */
+.player-glass-card {
+    position: relative;
+    z-index: 10;
+    width: 360px;
+    padding: 3rem 2rem;
+    border-radius: 2rem;
+
+    /* glassmorphism */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    /* spread content evenly when height-stretched */
+    gap: 20px;
+}
+
+/* ---------- poster ---------------------------------------- */
+.player-poster-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player-poster-ring {
+    width: 148px;
+    height: 148px;
+    border-radius: 50%;
+    border: 3px solid;
+    /* color injected inline */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.4s ease;
+    position: relative;
+    z-index: 1;
+
+    &.spinning {
+        animation: spin-ring 8s linear infinite;
+    }
+}
+
+.player-poster {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.poster-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0.25;
+    filter: blur(28px);
+    pointer-events: none;
+    transition: background 0.5s ease;
+}
+
+/* spinning animation when playing */
+@keyframes spin-ring {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- info ------------------------------------------ */
+.player-info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-mood-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid;
+    transition: all 0.4s ease;
+}
+
+.player-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0;
+    line-height: 1.3;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- progress bar ---------------------------------- */
+.player-progress-section {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.player-time {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    min-width: 32px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.player-progress-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    overflow: visible;
+
+    &:hover .player-progress-thumb {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.2);
+    }
+}
+
+.player-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 0.1s linear, background 0.4s ease;
+}
+
+.player-progress-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s, background 0.4s ease;
+    pointer-events: none;
+}
+
+/* ---------- main controls --------------------------------- */
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.ctrl-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #cbd5e1;
+    transition: color 0.2s, transform 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+
+    svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    &:hover {
+        color: #f1f5f9;
+        transform: scale(1.12);
+    }
+
+    &.secondary {
+        position: relative;
+    }
+}
+
+.ctrl-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: inherit;
+    line-height: 1;
+}
+
+.ctrl-btn.play-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    transition: transform 0.2s, box-shadow 0.4s ease, background 0.4s ease;
+
+    svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/* ---------- volume + speed row ---------------------------- */
+.player-extra-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Volume */
+.volume-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.15s;
+
+    &:hover {
+        transform: scale(1.15);
+    }
+}
+
+.volume-slider {
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--thumb-color, #8b5cf6);
+        cursor: pointer;
+        transition: transform 0.15s;
+
+        &:hover {
+            transform: scale(1.25);
+        }
+    }
+
+    &::-moz-range-thumb {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--thumb-color, #8b5cf6);
+        cursor: pointer;
+        border: none;
+    }
+}
+
+/* Speed */
+.speed-group {
+    position: relative;
+}
+
+.speed-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, transform 0.15s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: scale(1.05);
+    }
+}
+
+.speed-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 76px;
+    z-index: 50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    animation: fade-in-up 0.18s ease forwards;
+}
+
+.speed-option {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.07);
+        color: #f1f5f9;
+    }
+
+    &.active {
+        font-weight: 700;
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- responsive ------------------------------------ */
+@media (max-width: 480px) {
+    .player-glass-card {
+        width: calc(100vw - 48px);
+        padding: 28px 20px 22px;
+    }
+}
