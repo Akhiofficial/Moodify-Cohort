@@ -3,7 +3,7 @@ import '../styles/player.scss'
 import { useSong } from '../hooks/useSongs'
 
 const Player = () => {
-    const { song } = useSong()
+    const { currentSong, playNext, playPrevious, playlist, currentSongIndex, setCurrentSongIndex } = useSong()
 
     const audioRef = useRef(null)
     const progressRef = useRef(null)
@@ -15,6 +15,7 @@ const Player = () => {
     const [isMuted, setIsMuted] = useState(false)
     const [playbackSpeed, setPlaybackSpeed] = useState(1)
     const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false)
+    const [isQueueOpen, setIsQueueOpen] = useState(false)
 
     const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2]
 
@@ -22,10 +23,14 @@ const Player = () => {
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.load()
-            setIsPlaying(false)
+            if (isPlaying) {
+                audioRef.current.play()
+            } else {
+                setIsPlaying(false)
+            }
             setCurrentTime(0)
         }
-    }, [song?.url])
+    }, [currentSong?.url])
 
     // Sync playback speed
     useEffect(() => {
@@ -85,7 +90,13 @@ const Player = () => {
         audioRef.current.currentTime = Math.max(audioRef.current.currentTime - 10, 0)
     }
 
-    const handleEnded = () => setIsPlaying(false)
+    const handleEnded = () => {
+        if (currentSongIndex < playlist.length - 1) {
+            playNext()
+        } else {
+            setIsPlaying(false)
+        }
+    }
 
     const formatTime = (s) => {
         if (isNaN(s)) return '0:00'
@@ -116,13 +127,13 @@ const Player = () => {
         return map[mood?.toLowerCase()] || '#8b5cf6'
     }
 
-    const moodColor = getMoodColor(song?.mood)
+    const moodColor = getMoodColor(currentSong?.mood)
 
     return (
         <div className="player-glass-card">
             <audio
                 ref={audioRef}
-                src={song?.url}
+                src={currentSong?.url}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleEnded}
@@ -135,8 +146,8 @@ const Player = () => {
                     style={{ borderColor: moodColor }}
                 >
                     <img
-                        src={song?.posterUrl}
-                        alt={song?.title}
+                        src={currentSong?.posterUrl}
+                        alt={currentSong?.title}
                         className="player-poster"
                     />
                 </div>
@@ -149,9 +160,12 @@ const Player = () => {
             {/* Song Info */}
             <div className="player-info">
                 <span className="player-mood-badge" style={{ background: `${moodColor}22`, color: moodColor, borderColor: `${moodColor}55` }}>
-                    {song?.mood || 'Unknown'}
+                    {currentSong?.mood || 'Unknown'}
                 </span>
-                <h2 className="player-title">{song?.title || 'No Song Selected'}</h2>
+                <h2 className="player-title">{currentSong?.title || 'No Song Selected'}</h2>
+                <span className="player-playlist-info" style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '4px', display: 'block' }}>
+                    {playlist.length > 0 ? `Song ${currentSongIndex + 1} of ${playlist.length}` : 'No playlist'}
+                </span>
             </div>
 
             {/* Progress Bar */}
@@ -176,6 +190,21 @@ const Player = () => {
 
             {/* Main Controls */}
             <div className="player-controls">
+
+                {/* Previous Song */}
+                <button
+                    className="ctrl-btn secondary"
+                    onClick={playPrevious}
+                    title="Previous Song"
+                    disabled={currentSongIndex === 0}
+                    style={{ opacity: currentSongIndex === 0 ? 0.5 : 1 }}
+                >
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
+                    </svg>
+
+                </button>
+
                 {/* Skip Back 10s */}
                 <button
                     className="ctrl-btn secondary"
@@ -216,6 +245,20 @@ const Player = () => {
                         <path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z" />
                     </svg>
                     <span className="ctrl-label">10</span>
+                </button>
+
+                {/* Next Song */}
+                <button
+                    className="ctrl-btn secondary"
+                    onClick={playNext}
+                    title="Next Song"
+                    disabled={currentSongIndex >= playlist.length - 1}
+                    style={{ opacity: currentSongIndex >= playlist.length - 1 ? 0.5 : 1 }}
+                >
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+                    </svg>
+
                 </button>
             </div>
 
@@ -266,6 +309,50 @@ const Player = () => {
                     )}
                 </div>
             </div>
+
+            {/* Playlist Queue */}
+            {playlist.length > 0 && (
+                <div className={`player-queue ${isQueueOpen ? 'open' : ''}`}>
+                    <div
+                        className="queue-header"
+                        onClick={() => setIsQueueOpen(!isQueueOpen)}
+                        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    >
+                        <h3 className="queue-title">Up Next</h3>
+                        <button className="queue-toggle-btn">
+                            <svg
+                                class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"
+                                style={{ transform: isQueueOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}
+                            >
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="queue-list-container" style={{ height: isQueueOpen ? '180px' : '0', overflow: 'hidden', transition: 'height 0.3s ease' }}>
+                        <div className="queue-list">
+                            {playlist.map((item, index) => (
+                                <button
+                                    key={index}
+                                    className={`queue-item ${index === currentSongIndex ? 'active' : ''}`}
+                                    onClick={() => setCurrentSongIndex(index)}
+                                >
+                                    <img src={item.posterUrl} alt={item.title} className="queue-item-img" />
+                                    <div className="queue-item-info">
+                                        <span className="queue-item-title" style={{ color: index === currentSongIndex ? moodColor : '' }}>
+                                            {item.title}
+                                        </span>
+                                        <span className="queue-item-mood">{item.mood}</span>
+                                    </div>
+                                    {index === currentSongIndex && (
+                                        <div className="playing-indicator" style={{ backgroundColor: moodColor }} />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

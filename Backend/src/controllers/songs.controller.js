@@ -54,14 +54,14 @@ async function getSong(req, res) {
     try {
         const { mood } = req.query
 
-        const song = await songModel.findOne({ mood })
+        const songs = await songModel.find({ mood })
 
         return res.status(200).json({
-            message: "Song fetched successfully",
-            song
+            message: "Songs fetched successfully",
+            songs
         })
     } catch (error) {
-        return res.status(404).json({ message: "Song not found", error });
+        return res.status(404).json({ message: "Songs not found", error });
     }
 }
 

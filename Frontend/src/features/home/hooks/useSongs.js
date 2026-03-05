@@ -11,16 +11,29 @@ export const useSong = () => {
         throw new Error("useSong must be used within a SongProvider");
     }
 
-    const { song, setSong, loading, setLoading } = context;
+    const { playlist, setPlaylist, currentSongIndex, setCurrentSongIndex, playNext, playPrevious, currentSong, loading, setLoading } = context;
 
     async function handleGetSong({ mood }) {
         setLoading(true);
-        const data = await getSong({ mood });
-        setSong(data.song);
-        setLoading(false);
+        try {
+            const data = await getSong({ mood });
+            if (data && data.songs && data.songs.length > 0) {
+                setPlaylist(data.songs);
+                setCurrentSongIndex(0);
+            } else {
+                setPlaylist([]);
+                setCurrentSongIndex(0);
+            }
+        } catch (error) {
+            console.error("Failed to fetch songs:", error);
+            setPlaylist([]);
+            setCurrentSongIndex(0);
+        } finally {
+            setLoading(false);
+        }
     }
 
 
-    return ({ song, loading, handleGetSong });
+    return ({ playlist, currentSongIndex, currentSong, playNext, playPrevious, loading, handleGetSong });
 }
 
